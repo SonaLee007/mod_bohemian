@@ -1,0 +1,26 @@
+// tracing.ts
+import type { NextFunction, Request, Response } from 'express-async-router';
+import httpContext from 'express-http-context';
+import type { RequestHandler } from 'compose-middleware';
+import { compose } from 'compose-middleware';
+
+export const trace = compose([
+  httpContext.middleware as RequestHandler<Request, Response>,
+  ((req: Request, _res: Response, next: NextFunction) => {
+    httpContext.set('tracing', {
+      'x-request-id': req.headers['x-request-id']?.toString(),
+      'x-b3-traceid': req.headers['x-b3-traceid']?.toString(),
+      'x-b3-spanid': req.headers['x-b3-spanid']?.toString(),
+      'x-b3-sampled': req.headers['x-b3-sampled']?.toString(),
+    });
+    next();
+  }) as RequestHandler<Request, Response>,
+]);
+
+// server.ts
+import * as express from 'express';
+import trace from './tracing';
+const app = express();
+
+app.use(trace);
+app.use(process);
