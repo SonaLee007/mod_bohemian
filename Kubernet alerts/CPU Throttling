@@ -1,0 +1,22 @@
+- alert: cpu-throttling
+  expr: 'sum(increase(container_cpu_cfs_throttled_periods_total{pod=~"service-name.*", container!=""}[5m])) by (container, pod) / sum(increase(container_cpu_cfs_periods_total{pod=~"service-name.*", container!=""}[5m])) by (container, pod) > 0.1'
+  for: 2m
+  labels:
+    service: service-name
+    env: prod
+    severity: my-severity
+    responders: monitoring-team
+  annotations:
+    summary: High CPU throttling
+    description: 'service-name has high cpu throttling'
+
+- alert: service-down
+  expr: '((up{app="service-name"}) or on() vector(0)) == 0'
+  for: 5s
+  labels:
+    service: service-name
+    env: prod
+    severity: my-severity
+    responders: monitoring
+  annotations:
+    summary: service is down
