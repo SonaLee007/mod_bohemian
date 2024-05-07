@@ -1,0 +1,32 @@
+import { createMonitor } from '@rootmananager/kit';
+
+const monitor = createMonitor({ scope: 'mongo' });
+
+export const create = (payload: Payload, metadata?: Record<string, any>) =>
+  monitor(
+    'create',
+    async () => {
+      const { insertedCount } = await getCollection().insertMany(payload);
+
+      return insertedCount;
+    },
+    {
+      context: { payload, metadata },
+    },
+  );
+  
+ export const update = (id: string, payload: Payload, metadata?: Record<string, any>) =>
+   monitor(
+    'update',
+    async () => getCollection().findOneAndUpdate(
+      {
+        id
+      },
+      {
+        $set: { ...payload },
+      },
+    ),
+    {
+      context: { id, payload, metadata },
+    },
+  );
