@@ -1,0 +1,10 @@
+alert: high-http-requests-duration
+  expr: 'histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{app="service-name"}[5m])) by (status_code, path, method, le)) > 0.7'
+  for: 2m
+  labels:
+    service: service-name
+    env: prod
+    severity: monitoring-team
+    responders: monitoring-team
+  annotations:
+    summary: high http requests duration
